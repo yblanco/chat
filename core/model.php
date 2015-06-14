@@ -89,27 +89,39 @@ class model extends conexion{
         }
     }
 
-
+    
+    /*Validar valor a insertar o Buscar
+     * --Recibe:
+     * ----string: nombre de la columna
+     * --Retorna
+     * --string: patron.
+     *      */
+    private function validavalor($columna,$valor){
+        $type = $this->get_type($columna);
+        $where=addslashes($valor);
+        if(strpos(" ".$type,'int')!=false || strpos($type,'double')!=false){
+            echo "ERROR: ".$valor." NO ES VALIDO PARA LA COLUMNA ".$columna." DE TIPO ".$type."<br>"; //die;
+        }else{
+            $where = Htmlspecialchars($where);
+            return "'".$where."'";
+        }
+        
+        
+    }
+    
     /*Comillas Inteligenes
-     * Por desarrollar
+     * --Recibe:
+     * ----String: Valor del campo
+     * --Retorna:
+     * ----Valor reemplazadp
+     * -Falta por desarrollar la validación de la columna.
      */
-    private function comillas($where){
-        if($where !=NULL){
+    private function comillas($where, $column){
         $pattern = array("insert","select","update","delete","drop","create","alter");
         if(is_numeric($where)){
             return "'".$where."'";
         }else{
-            $where=addslashes($where);
-            if(!eregi("[^A-Za-z0-9 ]",$where)){
-                $where = str_ireplace($pattern, "", $where);
-            }else{
-                $where = NULL;
-            }
-            return "'".$where."'";
-        }
-        }else{
-            echo "VALOR NO ENCONTRADO";die;
-            return 0;
+            return $this->validavalor($column,$where);
         }
     }
     
@@ -133,6 +145,46 @@ class model extends conexion{
         pg_free_result($sqlexecute);
         return $sqlresult[0];
     }
+    /*Obtener si una columna es null
+     * --Recibe:
+     * ----Nombre de la columna
+     * --Retorna:
+     * ----boolean
+     */
+    private function getis_null($column) {
+        $sql = "SELECT is_nullable
+                	FROM information_schema.columns
+                        WHERE table_schema = '".$this->esquema."' 
+                          AND table_name = '".$this->tabla."'
+                          AND column_name = '".$column."'";
+        $sqlexecute = pg_exec($this->conn, $sql);
+        $sqlresult = pg_fetch_row($sqlexecute);
+        pg_free_result($sqlexecute);
+        if($sqlresult[0] == "NO"){
+            $return = false;
+        }else{
+            return true;
+        }
+        return  $return;
+        
+    }
+    /*Obtener si una columna es null
+     * --Recibe:
+     * ----Nombre de la columna
+     * --Retorna:
+     * ----boolean
+     */
+    private function get_type($column) {
+        $sql = "SELECT data_type
+                	FROM information_schema.columns
+                        WHERE table_schema = '".$this->esquema."' 
+                          AND table_name = '".$this->tabla."'
+                          AND column_name = '".$column."'";       
+        $sqlexecute = pg_exec($this->conn, $sql);
+        $sqlresult = pg_fetch_row($sqlexecute);
+        pg_free_result($sqlexecute);
+        return strtolower($sqlresult[0]);
+    }
     
     /*Retorna el valor por defecto en caso que se esté insertando null o sea pk
      *--Recibe:
@@ -142,10 +194,18 @@ class model extends conexion{
      *----Valor por defecto o valor insertado, según coresponda.
      */
     private function valuesdef($column, $value){
+        
         if($column == $this->pk || $value == ""){
-            $query = $this->getvaluesdef($column);
+            if(!$this->getis_null($column) && $column!=$this->pk){
+                echo "ERROR: ".$column." NO PUEDE SER NULL"; die;
+            }    
+            if($column == $this->pk){
+                $query = $this->getvaluesdef($column);
+            }else{
+                $query = $this->getvaluesdef($column);
+            }
         }else{
-            $query = "'".$value."'";
+            $query = $this->comillas($value, $column);
         }
         return $query;
     }
@@ -219,8 +279,10 @@ class model extends conexion{
         $sql=" WHERE ";
         $cont = 0;
         if(is_array($array)){
-            $mid= $array['MIDDLE'];     
-            unset($array['MIDDLE']);
+            if(isset($array['MIDDLE'])){
+                $mid= $array['MIDDLE'];     
+                unset($array['MIDDLE']);
+            }
             $total = count($array);
             foreach($array as $key => $value){
                 $inicio =0;
@@ -228,10 +290,10 @@ class model extends conexion{
                 foreach($value as $key2 => $value2){
                     if($this->validacolumn($key2)){
                         if($inicio == 0){
-                            $sql.="(".$key2."=".$this->comillas($value2);
+                            $sql.="(".$key2."=".$this->comillas($value2,$key2);
                             $inicio++;
                         }else{
-                            $sql.=" ".$key." ".$key2."=".$this->comillas($value2);
+                            $sql.=" ".$key." ".$key2."=".$this->comillas($value2,$key2);
                             $inicio++;
                         }
                         if($inicio == $total2){
@@ -307,8 +369,95 @@ class model extends conexion{
         return $final;
     }
     
+    /*INSERT de un registro
+     * --Recibe:
+     * ----arreglo de valores
+     * --Retorna:
+     * ----resultado
+     */
+    public function insertar($array){
+        $sql = "INSERT INTO ".$this->esquema.".".$this->tabla." (";
+        $col = $this->sqlcolumna($this->estructura);
+        $sql.=$col.") VALUES (";
+        $sql.=$this->valores($array, $col);
+        $sql.=");";
+        $sql.= $this->curren();
+        $sqlexecute = $this->ejecutarsql($sql);
+        $sqlresult =  $this->resultado($sqlexecute); 
+        return $sqlresult[0]['currval'];
+    }
     
-          
+    private function curren(){
+        $sql= "SELECT currval('".$this->esquema.".".$this->tabla."_".$this->pk."_seq'::regclass);";
+        
+        return $sql;
+    }
+
+
+    /*Funcion para organizar campos del insert
+     * --Recibe:
+     * ----valores: array
+     * ---- columnas: string
+     * --Retorna:
+     * ----string: de valores ordenados.
+     */
+    private function valores($value, $columnas){
+        $columnas = split(",", $columnas);
+        $cont = count($columnas);
+        $i=0;
+        $sql="";
+        foreach($columnas as $col){
+            $sql.=$this->valuesdef($col,$value[$col]);
+            $i++;
+            if($cont>$i){
+                $sql.=",";
+            }
+        }
+        
+        return $sql;
+        
+    }
+  
+    /*UPDATE de un registro
+     * --Recibe:
+     * ----arreglo de valores
+     * --Retorna:
+     * ----resultado
+     */
+    public function update($valores){
+        $sql = "UPDATE ".$this->esquema.".".$this->tabla." SET ";
+//        $valores = array_intersect_key($valores, $this->estructura);
+        $sql.=$this->set($valores);
+        $where=array(
+            'AND'=> array($this->pk=>$valores[$this->pk]),
+        );
+        $sql.= $this->generarWhere($where);
+        $sqlexecute = $this->ejecutarsql($sql);
+        return($sqlexecute);
+    }
+    
+    /*Funcion para organizar campos del insert
+     * --Recibe:
+     * ----valores: array
+     * --Retorna:
+     * ----string: de valores ordenados.
+     */
+    private function set($value){
+        $sql = "";     
+        $cont = count($this->estructura);
+        $i=1;
+        foreach($this->estructura as $col){
+            if(isset($value[$col])){
+                $sql.=$col."=".$this->comillas($value[$col], $col);
+                $i++;
+                if($i < $cont){
+                    $sql.=",";                    
+                }   
+            }   
+        }
+        return $sql;
+    }
+    
 }
 ?>
   

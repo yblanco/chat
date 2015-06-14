@@ -9,7 +9,7 @@ COMMENT ON SCHEMA registro
 CREATE TABLE registro.usuario(
 	pk_usu SERIAL NOT NULL,
 	ch_nomb CHARACTER VARYING(50) NOT NULL,
-	ch_ape CHARACTER VARYING(50) NOT NULL,
+	ch_ape CHARACTER VARYING(50),
 	ch_use CHARACTER VARYING (20) NOT NULL,
 	ch_pass CHARACTER VARYING(32) NOT NULL,
 	CONSTRAINT pk_usuario PRIMARY KEY (pk_usu),
@@ -19,5 +19,5 @@ ALTER TABLE registro.usuario OWNER to chat;
 
 INSERT INTO registro.usuario
 	(ch_nomb, ch_ape, ch_use, ch_pass)
-		VALUES ('Administrador', 'Master', 'admin', '');
+		VALUES ('Administrador', 'Master', 'admin', '81f681329dd33462326296cb146ee4bd');
 

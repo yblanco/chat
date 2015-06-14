@@ -2,20 +2,37 @@
 class msj{
     
     private $msj;
+    private $error;
     
-    function __construct() {
-        if(isset($_GET['m'])){
-            $this->msj();
+    function __construct($val ="") {
+        $this->establecer();
+        
+        if($val == ""){
+            if(isset($_GET['m'])){
+                $m = (int) $_GET['m'];
+                $this->msj($m);
+                echo $this->msj;
+            }
+        }else{
+            $m = $val;
+            $this->msj($m);
             echo $this->msj;
         }
+        
     }
     
-    function msj(){
-        $m = (int) $_GET['m'];
-        $this->msj = "Error: ";
+    private function establecer(){
+        $this->error = "ERROR: ";
+    }
+    
+    private function msj($m){
+        
         Switch($m){
             case 1:
-                $this->msj.= "Usuario/Contraseña inválida<br>";
+                $this->msj= $this->error."Usuario/Contraseña inválida<br>";
+                break;
+            case 2:
+                $this->msj= $this->error."Las Contraseñas no coinciden<br>";
                 break;
             default:
                 $this->msj="";

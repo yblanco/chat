@@ -150,5 +150,21 @@ class lib{
         return true;
     }
     
+    /*Funcion para setear valores en los add
+     * --Recibe: 
+     * ----string de nombre de campo
+     * --Retorna:
+     * ----string de valor
+     * 
+     */
+    public function post_campo($campo){
+        if(isset($_POST) && isset($_POST[$campo])){
+                return $_POST[$campo];
+        }else{
+            return "";
+        }
+        
+    }
+    
     
 }

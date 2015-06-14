@@ -1,5 +1,5 @@
 <?php //
-$msj = new msj();
+$msj = new msj();   
     if(isset($_POST) && isset($_POST['ok']) && $_POST['ok']== true){
         $userModel = new usuarioModel();
         $ch_use = $_POST['user'];
