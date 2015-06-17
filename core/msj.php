@@ -29,15 +29,18 @@ class msj{
         
         Switch($m){
             case 1:
-                $this->msj= $this->error."Usuario/Contraseña inválida<br>";
+                $this->msj= $this->error."Usuario/Contraseña inválida";
                 break;
             case 2:
-                $this->msj= $this->error."Las Contraseñas no coinciden<br>";
+                $this->msj= $this->error."Las Contraseñas no coinciden";
+                break;
+            case 3:
+                $this->msj= $this->error."Página no disponible";
                 break;
             default:
                 $this->msj="";
         }
-        
+        $this->msj.="<br>";
     }
 }
 ?>

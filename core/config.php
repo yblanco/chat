@@ -12,6 +12,12 @@
     
     class config extends lib{
         
+        public $permitido;
+        
+        function __construct($tabla, $esquema, $pk) {
+            $this->permitido=array('usuario'=>array('add'));
+        }
+        
         public static function getNombre(){
             Return APP;
         }
@@ -43,6 +49,25 @@
         
         public function getUrlJs(){
             return "web/js/";
+        }
+        public function allow(){
+            $flag=false;
+            if(isset($_GET) && isset($_GET['mod']) && isset($_GET['act'])){
+                foreach($this->permitido as $key=>$value){
+                    if($_GET['mod']==$key){
+                        foreach($value as $val){
+                            if($_GET['act']==$val){
+                                $flag = true;
+                            }
+                        }
+                    }
+                }
+               
+            }
+            if(isset($_SESSION['user'])){
+                $flag = true;
+            }
+            return $flag;
         }
     }    
         

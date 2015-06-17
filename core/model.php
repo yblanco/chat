@@ -379,7 +379,7 @@ class model extends conexion{
         $sql = "INSERT INTO ".$this->esquema.".".$this->tabla." (";
         $col = $this->sqlcolumna($this->estructura);
         $sql.=$col.") VALUES (";
-        $sql.=$this->valores($array, $col);
+        $sql.=$this->valores($array, $col,1);
         $sql.=");";
         $sql.= $this->curren();
         $sqlexecute = $this->ejecutarsql($sql);
@@ -401,11 +401,12 @@ class model extends conexion{
      * --Retorna:
      * ----string: de valores ordenados.
      */
-    private function valores($value, $columnas){
+    private function valores($value, $columnas,$t){
         $columnas = split(",", $columnas);
         $cont = count($columnas);
         $i=0;
         $sql="";
+        $value = $this->datos_pre($value,$t);
         foreach($columnas as $col){
             $sql.=$this->valuesdef($col,$value[$col]);
             $i++;
@@ -413,20 +414,40 @@ class model extends conexion{
                 $sql.=",";
             }
         }
-        
         return $sql;
         
     }
-  
+    
+    private function datos_pre($array,$quer){
+        $array2 = array('bo_vis'=>'','dt_lal'=>'');
+        if($quer==1){
+            $array['ch_ipr']=$this->ObtenerIP();
+        }
+        if($quer == 2){
+               $rs =$this->selectunico(array('AND'=>array($this->pk=>$array[$this->pk])));
+               $array['dt_lal']=$rs['dt_lal'];
+               $array2['bo_vis']=$rs['bo_vis'];       
+               $array['ch_ipr']=$rs['ch_ipr'];
+        }
+        if($quer==3){
+            $array['bo_vis']=0;
+        }
+        $array['ch_ipl']=$this->ObtenerIP();       
+        $array += $array2;
+        return $array;
+    }
+
+
     /*UPDATE de un registro
      * --Recibe:
      * ----arreglo de valores
      * --Retorna:
      * ----resultado
      */
-    public function update($valores){
+    public function update($valores,$t=""){
         $sql = "UPDATE ".$this->esquema.".".$this->tabla." SET ";
-//        $valores = array_intersect_key($valores, $this->estructura);
+        $t = $t==""?2:$t;
+        $valores = $this->datos_pre($valores, $t);
         $sql.=$this->set($valores);
         $where=array(
             'AND'=> array($this->pk=>$valores[$this->pk]),
@@ -444,18 +465,28 @@ class model extends conexion{
      */
     private function set($value){
         $sql = "";     
-        $cont = count($this->estructura);
-        $i=1;
+        $cont = count($value);
+        $i=0;
         foreach($this->estructura as $col){
             if(isset($value[$col])){
-                $sql.=$col."=".$this->comillas($value[$col], $col);
-                $i++;
-                if($i < $cont){
+                if($i != 0){
                     $sql.=",";                    
                 }   
+                $sql.=$col."=".$this->comillas($value[$col], $col);
+                $i++;
             }   
         }
         return $sql;
+    }
+    
+    public function delete($valores){
+        return $this->update($valores,3);
+    }
+    
+    public function _delete($pk){
+        $sql="DELETE FROM ".$this->esquema.".".$this->tabla;
+        $sql.= " WHERE ".$this->pk."='".$pk."'";
+        echo $sql;
     }
     
 }

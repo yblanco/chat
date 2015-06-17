@@ -1,3 +1,3 @@
 <?php 
-echo "ERROR"
+echo "ERROR_CONTROLLER"
 ?>

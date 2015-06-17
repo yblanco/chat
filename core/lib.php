@@ -2,7 +2,7 @@
 session_start();    
 class lib{
     private $mod;        
-
+    
     //Devuelve Url del login.
     public function login(){
         require_once ($this->getUrlController()."ControllerLogin.php");
@@ -67,11 +67,11 @@ class lib{
         }
         
         if(is_file($url)){
-            return $url;
+            return $url; 
         }else{
             require_once $this->error();
             return false;
-        }
+        } 
     }
     
     
@@ -125,7 +125,10 @@ class lib{
      *---Retorna: el htlm de cerrar sesión
     */
     public function logoutlink(){
-        $link = "<a href='index.php?logout=log'>".LOGOUT."</a>";
+        $link = "";
+        if(isset($_SESSION['user'])){
+            $link = "<a href='index.php?logout=log'>".LOGOUT."</a>";    
+        }
         return $link;
     }
     
@@ -164,6 +167,21 @@ class lib{
             return "";
         }
         
+    }
+    
+    public function _link($url, $nombre,$para=""){
+        $url = split("/", $url);
+        $p="";
+        if($para!=""){
+            foreach($para as $key => $val){
+                $p.=$key."=".$val."&";
+            }
+            $p=  substr($p, 0, -1);
+        }
+        $link = "<a href='index.php?mod=".$url[0]."&act=".$url[1]."&".$p."'>";
+        $link.=$nombre;
+        $link.="</a>";
+        return $link;
     }
     
     

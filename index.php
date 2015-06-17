@@ -6,11 +6,19 @@
     ?>
     <body>
         <?php 
-            if(isset($_SESSION['user'])){
+            $cargar = $conf->allow();
+//            if(isset($_SESSION['user'])){
+            if($cargar){
                 $conf->modulo();
+                
+                echo $conf->_link('home','INICIO')."<br>";
+                echo $conf->_link('usuario/list','Lista')."<br>";
+                echo $conf->logoutlink()."<br>";
             }else{
                 $conf->login();   
+                echo $conf->_link('usuario/add','Registrate');
             }
+            
         ?>
     </body>
 </html>

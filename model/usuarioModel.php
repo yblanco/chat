@@ -17,10 +17,12 @@ class usuarioModel extends model{
         if($result == NULL){
             header("Location:index.php?m=1");
         }else{
+            $this->update($result);
             $_SESSION['user'] =$result;
-            /*Aquí va un reload de la pàgina*/
-        }
-        
+            header('location:'.$_SERVER['REQUEST_URI']);
+        } 
+    
+
     }
 }
 ?>

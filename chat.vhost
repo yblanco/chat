@@ -1,0 +1,13 @@
+NameVirtualHost chat.sytes.net
+Listen *:4000
+
+<VirtualHost *:4000>
+      ServerName chat
+      ServerAlias chat.sytes.net
+      DocumentRoot "/var/www/chat"
+      DirectoryIndex index.php
+      <Directory "/var/www/chat">
+        AllowOverride All
+        Allow from All
+      </Directory>
+</VirtualHost>
