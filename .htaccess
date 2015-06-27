@@ -1,0 +1,32 @@
+# Activar RewriteEngine
+RewriteEngine on
+
+# Reescribir la URL solicitada por el usuario
+Options All -Indexes
+RewriteRule ^_(\w+)?/$ index.php?logout=$1 [L] 
+RewriteRule ^(\w+)?/$ index.php?m=$1 [L]
+RewriteRule ^(\w+)?/?$ index.php?mod=$1 [L]
+RewriteRule ^(\w+)?/(\w+)/?$ index.php?mod=$1&act=$2 [L]
+RewriteRule ^(\w+)?/(\w+)?/([0-9]+)/?$ index.php?mod=$1&act=$2&m=$3 [L]
+RewriteRule ^(\w+)?/(\w+)?/id([0-9]+)/?$ index.php?mod=$1&act=$2&id=$3 [L]
+RewriteRule ^(\w+)?/(\w+)?/id([0-9]+)?/([0-9]+)/?$ index.php?mod=$1&act=$2&id=$3&m=$4 [L]
+
+#Evitar hotlink
+#RewriteCond %{HTTP_REFERER} !^$
+#RewriteCond %{HTTP_REFERER} !^http://(www.)?mi-dominio.com/.*$ [NC]
+#RewriteRule .(jpg|jpeg|gif|png|bmp)$ - [F]
+
+#ERRORES PERSONALIZADOS
+ErrorDocument 400 /error/badrequest.html
+ErrorDocument 401 /error/authreqd.html
+ErrorDocument 403 /error/forbid.html
+ErrorDocument 404 /error/notfound.html
+ErrorDocument 500 /error/serverr.html
+
+#BACKLIST
+<Limit GET HEAD POST>
+order allow,deny
+#deny from 000.000.000.000
+#deny from 111.000.000.000
+allow from all
+</limit>

@@ -6,7 +6,7 @@
         $where = array (
                         'AND'=> array('pk_usu'=>$id),
                     );
-        $lista = $userModel->selectunico($where);
+        $userModel->selectunico($where);
         include $conf->validar('view','usuario');
     }else{
         echo "ERROR";die;

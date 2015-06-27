@@ -4,7 +4,7 @@
     if(isset($_POST) && isset($_POST['ok'])){
         $id = $_POST['pk_usu'];
         $userModel->update($_POST); 
-        header("location:index.php?mod=usuario&act=view&id=".$id);
+        header("location:".$conf->link_header('usuario/view',array('id'=>$id)));
     }
     
     if(isset($_GET['id']) && !empty($_GET['id'])){        
@@ -12,11 +12,10 @@
         $where = array (
                         'AND'=> array('pk_usu'=>$id),
                     );
-        $lista = $userModel->selectunico($where);
+        $userModel->selectunico($where);
     }else{
         echo "ERROR";die;
     }
-    $_POST=$lista;
     include $conf->validar('edit','usuario');
     
 ?>

@@ -10,12 +10,12 @@
                     'MIDDLE'=>'AND',
                 );
             $userModel->login($where);
-            header("location:index.php?mod=usuario&act=view&id=".$id);
+            header("location:".$conf->link_header('usuario/view',array('id'=>$id)));
         }else{
             new msj(2);
         }
     }elseif(isset($_SESSION['user'])){
-        header("location: index.php?m=3");
+        header("location:". $conf->link_header(3));
     }
     include $conf->validar('add','usuario');
    

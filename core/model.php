@@ -5,19 +5,26 @@ class model extends conexion{
     private $esquema;
     private $pk;
     private $estructura;
+    private $clase;
+    public $data=array();
     static $conn;
     
     
-    function __construct($tabla, $esquema, $pk) {
+    function __construct($tabla, $esquema, $pk, $clase) {
         $this->tabla=(string) $tabla;
         $this->esquema=(string) $esquema;
         $this->pk = (string) $pk;
         $this->conn = $this->conectar();    
         $this->estructura = $this->getColumnas();   
+        $this->clase = $clase;
     }
     
     function __destruct() {
         $this->desconectar();
+    }
+    
+    public function nombreclase(){
+        return $this->clase;
     }
     
     /*Obtiene las columnas de la tabla
@@ -168,7 +175,7 @@ class model extends conexion{
         return  $return;
         
     }
-    /*Obtener si una columna es null
+    /*Obtener tipo de columna
      * --Recibe:
      * ----Nombre de la columna
      * --Retorna:
@@ -224,7 +231,7 @@ class model extends conexion{
                 throw new Exception("ERROR: ".pg_last_error());
             }
         }catch(Exception $e){
-            echo $e; //ESTO SE INSERTARÁ EN EL LOG ERROR
+            echo "ERROR: ".$e."SQL: ".$sql;die; //ESTO SE INSERTARÁ EN EL LOG ERROR
         }
         return $sqlexecute;
     }
@@ -348,6 +355,7 @@ class model extends conexion{
 //        echo $sql."<br>";
         $sqlexecute = $this->ejecutarsql($sql);
         $sqlresult =  $this->resultado($sqlexecute);         
+        $this->data = $sqlresult;
         return $sqlresult;
         
     }
@@ -360,13 +368,16 @@ class model extends conexion{
     */ 
     public function selectunico($where){
         $final = NULL;
+        $flag = false;
         $resultados = $this->select($where,true);
         if(is_array($resultados)){
+            $flag = true;
             foreach($resultados as $resultado){
                 $final = $resultado;
             }
         }
-        return $final;
+        $this->data = $final;
+        return $flag;
     }
     
     /*INSERT de un registro
@@ -486,7 +497,18 @@ class model extends conexion{
     public function _delete($pk){
         $sql="DELETE FROM ".$this->esquema.".".$this->tabla;
         $sql.= " WHERE ".$this->pk."='".$pk."'";
-        echo $sql;
+         $sqlexecute = $this->ejecutarsql($sql);
+        return($sqlexecute);
+    }
+    
+    public function getLabel($nombre){
+        $lab ="";
+        foreach($this->tag() as $campo=>$label){
+            if($nombre == $campo){
+                $lab = $label;
+            }
+        }
+        return $lab;
     }
     
 }

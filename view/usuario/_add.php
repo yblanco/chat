@@ -1,20 +1,23 @@
 ADD DE USUARIO<br>
-<form name="usuario" method="post">
-    <input type="hidden" name="ok" value="true">
-    <label for="_ch_nomb">Nombre</label><br>
-    <input type="text" name="ch_nomb" id="_ch_nomb" value="<?php echo $conf->post_campo('ch_nomb'); ?>"><br>
-    
-    <label for="_ch_ape">Apellido</label><br>
-    <input type="text" name="ch_ape" id="_ch_ape" value="<?php echo $conf->post_campo('ch_ape'); ?>"><br>
-    
-    <label for="_ch_use">Usuario</label><br>
-    <input type="text" name="ch_use" id="_ch_use" value="<?php echo $conf->post_campo('ch_use'); ?>"><br>
-    
-    <label for="_ch_pass">Contraseña</label><br>
-    <input type="password" name="ch_pass" id="_ch_pass"><br>
-    
-    <label for="_ch_pass">Introduzca de Nuevo su Contraseña</label><br>
-    <input type="password" name="ch_pass2" id="_ch_pass2"><br>
-    
-    <input type="submit" name="_usuario" value="Guardar">
-</form>
+<?php
+$form = new form($userModel);
+echo $form->_formulario();
+echo $form->hidden('ok', true);
+echo $form->label('ch_nomb');     
+echo $form->text('ch_nomb');
+echo "<br>";
+echo $form->label('ch_ape');     
+echo $form->text('ch_ape');
+echo "<br>";
+echo $form->label('ch_use');     
+echo $form->text('ch_use');
+echo "<br>";
+echo $form->label('ch_pass');     
+echo $form->text('ch_pass');
+echo "<br>";
+echo $form->label('ch_pass2', 'Introduzca de Nuevo su Contraseña');     
+echo $form->text('ch_pass2');
+echo "<br>";
+echo $form->submit('Guardar');
+echo $form->formulario_();
+?>

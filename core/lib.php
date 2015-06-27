@@ -1,6 +1,6 @@
 <?php
 session_start();    
-class lib{
+class lib extends html{
     private $mod;        
     
     //Devuelve Url del login.
@@ -29,7 +29,7 @@ class lib{
         if(isset($_GET['logout']) && $_GET['logout']=="log"){
                     $this->logout();
         }else{  
-            $user_session = $_SESSION['user'];
+            $user_session = isset($_SESSION['user']) ? $_SESSION['user'] : "";
             if(isset($_GET['mod']) && isset($_GET['act']) && $_GET['act'] != "" && $_GET['mod']!= ""){
                 $accion = $_GET["act"];
                 $modulos = $_GET['mod'];
@@ -72,117 +72,6 @@ class lib{
             require_once $this->error();
             return false;
         } 
-    }
-    
-    
-    
-    /*Función Privada que verifica el tipo de recurso y retorna la etiqueta indicada
-     *---Recibe 2 parametro:
-     *-----Tipo de recurso.
-     *-----Valor del recurso.
-    */
-    private function tipoderecurso($tipo, $recurso){
-        switch ($tipo){
-            case "css":
-                ?>
-                    <link rel="stylesheet" type="text/css" href="<?php echo $this->getUrlCss().$recurso; ?>"/>
-                <?php
-                break;
-            case "js":
-                ?>
-                    <script ype="text/javascript" src="<?php echo $this->getUrlJs().$recurso; ?>"></script>
-                <?php
-                break;
-            case "img":
-                ?>
-                    <img src="<?php echo $this->getUrlimg().$recurso;?>"  alt="Imágen" />
-                <?php
-            default:
-                break;
-        
-        }
-    }
-    
-    /*Función que genera las etiquetas de recursos
-     *---Recibe 2 parametros:
-     *-----Valor del recurso.
-     *-----Tipo del recurso.(css,js,img)    
-    */
-    public function resource($valor, $tipo){
-        if(isset($valor)){
-            if(is_array($valor)){
-                foreach($valor as $recurso){
-                    $this->tipoderecurso($tipo, $recurso);
-                }
-            }else{      
-                $this->tipoderecurso($tipo, $valor);
-            }
-        }
-    }
-    
-    
-    /*Función que inserta el cerrar sesión
-     *---Retorna: el htlm de cerrar sesión
-    */
-    public function logoutlink(){
-        $link = "";
-        if(isset($_SESSION['user'])){
-            $link = "<a href='index.php?logout=log'>".LOGOUT."</a>";    
-        }
-        return $link;
-    }
-    
-    /*Función que inserta el html inicial
-     *---Recibe 3 paramtros:
-     *-----Nombre de la app.
-     *-----Nombre de Archivo css o Array de nombres
-     *-----Nombre de Archivo js o Array de nombres
-    */
-    public function head($app, $conten, $charset, $css="", $js=""){
-        ?>
-        <head>
-            <meta http-equiv="Content-Type" content= <?php echo $conten ?> charset="<?php echo $charset; ?>" />
-            <title><?php echo $app; ?></title>
-            <link rel="shortcut icon" href="<?php echo $this->getUrlfavicon(); ?>favicon.ico"/>
-            <?php
-               $this->resource($css, "css");
-               $this->resource($js, "js");
-            ?>
-        </head> 
-        <?php
-        return true;
-    }
-    
-    /*Funcion para setear valores en los add
-     * --Recibe: 
-     * ----string de nombre de campo
-     * --Retorna:
-     * ----string de valor
-     * 
-     */
-    public function post_campo($campo){
-        if(isset($_POST) && isset($_POST[$campo])){
-                return $_POST[$campo];
-        }else{
-            return "";
-        }
-        
-    }
-    
-    public function _link($url, $nombre,$para=""){
-        $url = split("/", $url);
-        $p="";
-        if($para!=""){
-            foreach($para as $key => $val){
-                $p.=$key."=".$val."&";
-            }
-            $p=  substr($p, 0, -1);
-        }
-        $link = "<a href='index.php?mod=".$url[0]."&act=".$url[1]."&".$p."'>";
-        $link.=$nombre;
-        $link.="</a>";
-        return $link;
-    }
-    
+    }    
     
 }

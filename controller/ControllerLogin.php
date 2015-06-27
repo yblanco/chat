@@ -1,6 +1,5 @@
 <?php //
     $login = array('user'=>'ch_use','pass'=>'ch_pass'); //por si los campos se llaman diferente
-    
     $msj = new msj();   
     if(isset($_POST) && isset($_POST['ok']) && $_POST['ok']== true){
         $userModel = new usuarioModel();

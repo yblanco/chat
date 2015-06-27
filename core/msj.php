@@ -14,8 +14,9 @@ class msj{
                 echo $this->msj;
             }
         }else{
-            $m = $val;
+            $m = $val;            
             $this->msj($m);
+            
             echo $this->msj;
         }
         
@@ -36,6 +37,9 @@ class msj{
                 break;
             case 3:
                 $this->msj= $this->error."Página no disponible";
+                break;
+            case 4:
+                $this->msj= $this->error."No tiene permiso para ver esta página";
                 break;
             default:
                 $this->msj="";

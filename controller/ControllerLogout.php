@@ -1,5 +1,6 @@
 <?php
-echo "logoutController";    
+echo "logoutController"; 
+$conf = new config();
 session_destroy();
-header('Location: index.php');
+header('Location: '.$conf->link_header('home'));
 ?>

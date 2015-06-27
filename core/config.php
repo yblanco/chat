@@ -12,10 +12,10 @@
     
     class config extends lib{
         
-        public $permitido;
+        private $permitido;
         
-        function __construct($tabla, $esquema, $pk) {
-            $this->permitido=array('usuario'=>array('add'));
+        function __construct() {
+            $this->permitido=array('usuario'=>array('add')); //sacar esto de aquí
         }
         
         public static function getNombre(){
@@ -44,27 +44,31 @@
         }
         
         public function getUrlCss(){
-            return "web/css/";
+            return "/web/css/";
         }
         
         public function getUrlJs(){
-            return "web/js/";
+            return "/web/js/";
         }
+        
         public function allow(){
             $flag=false;
+            $msj=4;
             if(isset($_GET) && isset($_GET['mod']) && isset($_GET['act'])){
                 foreach($this->permitido as $key=>$value){
                     if($_GET['mod']==$key){
                         foreach($value as $val){
                             if($_GET['act']==$val){
                                 $flag = true;
+                            }elseif(!isset($_SESSION['user'])){
+                                new msj($msj);
                             }
                         }
                     }
                 }
-               
             }
             if(isset($_SESSION['user'])){
+                //Falta validar la url y los permisos de la sesión
                 $flag = true;
             }
             return $flag;
